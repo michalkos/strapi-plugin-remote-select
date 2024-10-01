@@ -34,6 +34,9 @@ export default function RemoteSelect({
   );
   const [optionsLoadingError, setLoadingError] = useState<any | undefined>();
 
+  const search = new URLSearchParams(window.location.search);
+  const locale = search.get("plugins[i18n][locale]");
+
   const valueParsed = useMemo<string | string[]>(() => {
     if (isMulti) {
       if (!value) {
@@ -57,10 +60,15 @@ export default function RemoteSelect({
   async function loadOptions(): Promise<void> {
     setIsLoading(true);
     try {
+      const config = { ...selectConfiguration.fetch };
+      if (selectConfiguration.useLocale && locale) {
+        config.url = (config.url || "").replace("{locale}", locale);
+      }
+
       const res = await fetch("/remote-select/options-proxy", {
         method: "POST",
         body: JSON.stringify({
-          fetch: selectConfiguration.fetch,
+          fetch: config,
           mapping: selectConfiguration.mapping,
         }),
         headers: {

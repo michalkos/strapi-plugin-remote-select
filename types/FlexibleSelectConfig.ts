@@ -2,6 +2,7 @@ export interface FlexibleSelectConfig {
   fetch: FlexibleSelectFetchConfig;
   mapping: FlexibleSelectMappingConfig;
   select: FlexibleSelectSelectConfig;
+  useLocale: boolean;
 }
 
 export interface FlexibleSelectFetchConfig {

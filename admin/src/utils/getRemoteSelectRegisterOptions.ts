@@ -228,6 +228,19 @@ export function getRemoteSelectRegisterOptions(
             ),
           },
           {
+            name: "options.useLocale",
+            type: "checkbox",
+            intlLabel: {
+              id: getTrad("useLocale-label"),
+              defaultMessage: "Use locale",
+            },
+            description: {
+              id: getTrad("useLocale-note"),
+              defaultMessage:
+                "Use locale in the request to the remote source - {locale} will be replaced with the current locale",
+            },
+          },
+          {
             name: "required",
             type: "checkbox",
             intlLabel: {

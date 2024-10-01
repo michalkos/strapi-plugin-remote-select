@@ -37,6 +37,10 @@ export default function SearchableRemoteSelect(attrs: any) {
   );
   const [loadingError, setLoadingError] = useState<any>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const search = new URLSearchParams(window.location.search);
+  const locale = search.get("plugins[i18n][locale]");
+
   const isMulti = useMemo<boolean>(
     () => !!selectConfiguration.select?.multi,
     [selectConfiguration],
@@ -93,15 +97,16 @@ export default function SearchableRemoteSelect(attrs: any) {
       const config = { ...selectConfiguration.fetch };
       config.url = (config.url || "").replace("{q}", searchModel);
 
+      if (selectConfiguration.useLocale && locale) {
+        config.url = config.url.replace("{locale}", locale);
+      }
+
       const res = await fetch(
         window.location.origin + "/remote-select/options-proxy",
         {
           method: "POST",
           body: JSON.stringify({
-            fetch: {
-              ...selectConfiguration.fetch,
-              url: selectConfiguration.fetch.url.replace("{q}", searchModel),
-            },
+            fetch: config,
             mapping: selectConfiguration.mapping,
           }),
           headers: {
