@@ -179,3 +179,8 @@ and as a result, we have: (single mode)
 multiple mode:
 
 ![Searchable remote select multi input](https://github.com/dmitriy-nz/strapi-plugin-remote-select/raw/main/screenshots/searchable-remote-select-input.multiple.gif)
+
+
+### Locale support
+
+If you need to support multiple locales, you can use the `{locale}` placeholder in the `Fetch options url` field. This placeholder will be replaced with the current document locale.

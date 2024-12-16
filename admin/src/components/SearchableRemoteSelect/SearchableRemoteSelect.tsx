@@ -5,11 +5,15 @@ import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { FlexibleSelectConfig } from '../../../../types/FlexibleSelectConfig';
 import { SearchableRemoteSelectValue } from '../../../../types/SearchableRemoteSelectValue';
+import { useQueryParams } from '@strapi/strapi/admin';
 
 export default function SearchableRemoteSelect(attrs: any) {
   const { name, error, hint, onChange, value, label, attribute, required } = attrs;
 
   const selectConfiguration: FlexibleSelectConfig = attribute.options;
+
+  const [{ query }] = useQueryParams();
+  const locale = (query as any)?.plugins?.i18n?.locale;
 
   const generatedId = useId();
   const { formatMessage } = useIntl();
@@ -65,16 +69,17 @@ export default function SearchableRemoteSelect(attrs: any) {
 
   async function loadOptions(searchModel: string): Promise<void> {
     try {
-      const config = { ...selectConfiguration.fetch };
-      config.url = (config.url || '').replace('{q}', searchModel);
+      const fetchConfig = { ...selectConfiguration.fetch };
+      fetchConfig.url = (fetchConfig.url || '').replace('{q}', searchModel);
+
+      if (fetchConfig.url.includes('{locale}')) {
+        fetchConfig.url = fetchConfig.url.replace('{locale}', locale);
+      }
 
       const res = await fetch(window.location.origin + '/remote-select/options-proxy', {
         method: 'POST',
         body: JSON.stringify({
-          fetch: {
-            ...selectConfiguration.fetch,
-            url: selectConfiguration.fetch.url.replace('{q}', searchModel),
-          },
+          fetch: fetchConfig,
           mapping: selectConfiguration.mapping,
         }),
         headers: {

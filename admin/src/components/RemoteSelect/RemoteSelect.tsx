@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { FlexibleSelectConfig } from '../../../../types/FlexibleSelectConfig';
 import { SearchableRemoteSelectValue } from '../../../../types/SearchableRemoteSelectValue';
+import { useQueryParams } from '@strapi/strapi/admin';
 
 export default function RemoteSelect({
   value,
@@ -27,6 +28,9 @@ export default function RemoteSelect({
     defaultMessage: 'Select a value',
   };
   const selectConfiguration: FlexibleSelectConfig = attribute.options;
+
+  const [{ query }] = useQueryParams();
+  const locale = (query as any)?.plugins?.i18n?.locale;
 
   const { formatMessage } = useIntl();
   const isMulti = useMemo<boolean>(
@@ -60,10 +64,16 @@ export default function RemoteSelect({
   async function loadOptions(): Promise<void> {
     setIsLoading(true);
     try {
+      const fetchConfig = { ...selectConfiguration.fetch };
+
+      if (fetchConfig.url.includes('{locale}')) {
+        fetchConfig.url = fetchConfig.url.replace('{locale}', locale);
+      }
+
       const res = await fetch('/remote-select/options-proxy', {
         method: 'POST',
         body: JSON.stringify({
-          fetch: selectConfiguration.fetch,
+          fetch: fetchConfig,
           mapping: selectConfiguration.mapping,
         }),
         headers: {
